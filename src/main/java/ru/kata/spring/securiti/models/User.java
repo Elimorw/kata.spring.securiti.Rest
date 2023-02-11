@@ -1,31 +1,40 @@
 package ru.kata.spring.securiti.models;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
-public class User {
-
+public class User implements UserDetails {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "id")
     private int id;
 
-    @JoinColumn(name = "user_name")
-    private String userName;
+    @Column (name = "user_name")
+    private String username;
 
-    @JoinColumn(name = "last_name")
-    private String lastName;
+    @Column (name = "age")
+    private int age;
 
-    @JoinColumn(name = "password")
+    @Column (name = "email")
+    private String email;
+
+    @Column(name = "password")
     private String password;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns =  @JoinColumn(name = "role_id"))
-    private Collection<Role> roles;
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
+
+    public User() {
+    }
 
     public int getId() {
         return id;
@@ -35,22 +44,57 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    @Override
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public String getLastName() {
-        return lastName;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRoles();
+    }
+
+    @Override
     public String getPassword() {
         return password;
     }
@@ -59,22 +103,25 @@ public class User {
         this.password = password;
     }
 
-    public Collection<Role> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Collection<Role> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getStringRoles() {
+        return getRoles().toString().replaceAll("^\\[|\\]$", "");
     }
 
     @Override
     public String toString() {
-        return "User{" +
+        return "User {" +
                 "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", password='" + password + '\'' +
-                ", roles=" + roles +
+                ", username='" + username + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
                 '}';
     }
 }
